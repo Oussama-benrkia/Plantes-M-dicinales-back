@@ -10,8 +10,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                // Flutter web typically runs on localhost:3000 or other ports
-                // Flutter mobile uses different endpoints
                 .allowedOrigins(
                         "http://localhost:4200",   // Angular local development
                         "http://localhost:3000"  // Flutter web local
