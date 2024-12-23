@@ -136,11 +136,7 @@ public class PlantesService implements ServiceMetier<PlantesResponse, PlantesReq
         return Optional.ofNullable(plantesMapper.toResponse(plantes));
     }
 
-public PageResponse<PlantesResponse> findAllWithSearch(int page, int size, String search) {
-            Pageable pageable = PageRequest.of(page, size);
-        Page<Plantes> res = plantesRepository.findAllByNameContainingIgnoreCase(search, pageable);
-        return createPageResponse(res);
-    }
+
     public PageResponse<PlantesResponse> findAllWithsearch(int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Plantes> res = plantesRepository.findAllByNameContainingIgnoreCase(search, pageable);
@@ -151,5 +147,29 @@ public PageResponse<PlantesResponse> findAllWithSearch(int page, int size, Strin
         return plantesRepository.findAllByNameContainingIgnoreCase(search).stream()
                 .map(plantesMapper::toResponse)
                 .toList();
+    }
+
+    public PageResponse<PlantesResponse> findallbynameMaladie(int page,int size,String maladieName) {
+     Pageable pageable = PageRequest.of(page, size);
+     Maladies maladies=maladiesRepository.findByName(maladieName).orElse(null);
+     if (maladies == null) {
+         createEmptyPageResponse(pageable);
+     }
+     return createPageResponse(plantesRepository.findAllByMaladies(maladies, pageable));
+    }
+    private PageResponse<PlantesResponse> createEmptyPageResponse(Pageable pageable) {
+        return PageResponse.<PlantesResponse>builder()
+                .content(List.of()) // Empty list
+                .number(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .totalElements(0)
+                .totalPages(0)
+                .first(true)
+                .last(true)
+                .build();
+    }
+    public PageResponse<PlantesResponse> findplantassociee(Long id, int page, int size ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return createPageResponse(plantesRepository.findByMaladieIdLinkedToPlante(id, pageable));
     }
 }
