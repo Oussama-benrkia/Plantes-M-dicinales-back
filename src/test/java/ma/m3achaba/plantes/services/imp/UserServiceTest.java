@@ -12,6 +12,7 @@ import ma.m3achaba.plantes.mapper.UserMapper;
 import ma.m3achaba.plantes.model.Role;
 import ma.m3achaba.plantes.model.User;
 import ma.m3achaba.plantes.repo.UserRepo;
+import ma.m3achaba.plantes.util.images.ImagesFolder;
 import ma.m3achaba.plantes.util.images.ImgService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -137,7 +138,7 @@ class UserServiceTest {
         MultipartFile mockFile = Mockito.mock(MultipartFile.class);
         when(mockFile.isEmpty()).thenReturn(true); // Simuler un fichier vide
 
-        UserRequest updateRequest = new UserRequest("John", "Doe", "new.email@example.com", "newpassword", "USER", mockFile);
+        UserRequest updateRequest = new UserRequest("John", "Doe", "new.email@example.com", "newpassword", "ADMIN", mockFile);
         when(userRepo.save(user)).thenReturn(user);
 
         Optional<UserResponse> response = userService.update(updateRequest, 1L);
@@ -146,6 +147,55 @@ class UserServiceTest {
         assertEquals("new.email@example.com", response.get().getEmail());
         verify(userRepo).save(user);
     }
+    @Test
+    void testUpdateWithNonEmptyFile() {
+        // Arrange: Mock user repository and mapper
+        user.setImage("oldImagePath"); // Ensure the image field is set
+        when(userRepo.findById(1L)).thenReturn(Optional.of(user));
+        when(userMapper.toResponse(user)).thenReturn(new UserResponse(1L, "John", "Doe", "new.email@example.com", "USER", "newImagePath"));
+
+        // Mock file handling
+        MultipartFile mockFile = Mockito.mock(MultipartFile.class);
+        when(mockFile.isEmpty()).thenReturn(false); // Simulate a non-empty file
+        when(imgService.addImage(mockFile, ImagesFolder.USER)).thenReturn("newImagePath");
+
+        // Mock deleteImage behavior
+        when(imgService.deleteImage("oldImagePath")).thenReturn(true); // Mocking with the old image path
+
+        // Create a UserRequest with the mocked file
+        UserRequest updateRequest = new UserRequest("John", "Doe", "new.email@example.com", "newpassword", "ADMIN", mockFile);
+
+        // Stub repository save method
+        when(userRepo.save(user)).thenReturn(user);
+
+        // Act: Call the update method
+        Optional<UserResponse> response = userService.update(updateRequest, 1L);
+
+        // Assert: Verify interactions and expected outcome
+        assertTrue(response.isPresent());
+        assertEquals("new.email@example.com", response.get().getEmail());
+        assertEquals("newImagePath", user.getImage()); // Ensure image path is updated
+        verify(imgService).deleteImage("oldImagePath"); // Verify the old image was deleted
+        verify(imgService).addImage(mockFile, ImagesFolder.USER); // Verify the new image was added
+        verify(userRepo).save(user); // Verify the user entity was saved
+    }
+
+    @Test
+    void testUpdate_EmailAlreadyExists() {
+        // Arrange
+        when(userRepo.findById(1L)).thenReturn(Optional.of(user));
+        MultipartFile mockFile = Mockito.mock(MultipartFile.class); // Pas besoin de stub ici si isEmpty() n'est pas utilisé
+        when(userRepo.existsByEmail("existing.email@example.com")).thenReturn(true);
+        UserRequest updateRequest = new UserRequest("John", "Doe", "existing.email@example.com", "newpassword", "USER", mockFile);
+
+        // Act and Assert
+        OperationNotPermittedException exception = assertThrows(OperationNotPermittedException.class, () ->
+                userService.update(updateRequest, 1L));
+
+        assertEquals("User with email existing.email@example.com already exists", exception.getMessage());
+        verify(userRepo, never()).save(any());
+    }
+
     @Test
     void testFindAllWithSearchAndRoleWithoutRole() {
         // Données simulées
@@ -362,30 +412,55 @@ class UserServiceTest {
     }
     @Test
     void testDeleteUserWithImage() {
-        // Prepare test data
-        Long userId = 2L;
-        String imagePath = "    /user/image.jpg";
-        User user = new User("Jane", "Smith", "jane.smith@example.com", "5678", Role.ADMIN, imagePath);
-        UserResponse userResponse = new UserResponse(2L, "Jane", "Smith", "jane.smith@example.com", "ADMIN", imagePath);
+        // Simuler les données
+        Long userId = 3L;
+        String imagePath = "images/user3.png";
+        User user = new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, imagePath);
+        UserResponse userResponse = new UserResponse(3L, "John", "Doe", "john.doe@example.com", "USER", imagePath);
 
-        // Configure mock behaviors
+        // Configurer les comportements des dépendances
         when(userRepo.findById(userId)).thenReturn(Optional.of(user));
+        when(imgService.deleteImage(imagePath)).thenReturn(true); // Simulation correcte pour une méthode avec retour
         doNothing().when(userRepo).delete(user);
         when(userMapper.toResponse(user)).thenReturn(userResponse);
-        doNothing().when(imgService).deleteImage(imagePath);
 
-        // Call the delete method
+        // Appel de la méthode delete
         Optional<UserResponse> response = userService.delete(userId);
 
-        // Assertions
-        assertTrue(response.isPresent(), "The response must be present.");
-        assertEquals(userResponse, response.get(), "The response must match the deleted user.");
-        assertEquals(imagePath, response.get().getImage(), "The user's image path should be preserved in the response.");
+        // Vérifications
+        assertTrue(response.isPresent(), "La réponse doit être présente.");
+        assertEquals(userResponse, response.get(), "La réponse doit correspondre à l'utilisateur supprimé.");
+        assertEquals(imagePath, response.get().getImage(), "L'utilisateur doit avoir l'image supprimée.");
 
-        // Verify method invocations
+        // Vérification des appels
         verify(userRepo).findById(userId);
         verify(userRepo).delete(user);
         verify(imgService).deleteImage(imagePath);
         verify(userMapper).toResponse(user);
     }
+
+
+    @Test
+    void testUpdate_RoleChange() {
+        // Arrange
+        when(userRepo.findById(1L)).thenReturn(Optional.of(user));
+        when(userMapper.toResponse(user)).thenReturn(new UserResponse(1L, "John", "Doe", "john.doe@example.com", "ADMIN", "oldpath.png"));
+
+        MultipartFile mockFile = Mockito.mock(MultipartFile.class);
+        when(mockFile.isEmpty()).thenReturn(true);
+
+        UserRequest updateRequest = new UserRequest("John", "Doe", "john.doe@example.com", "oldpassword", "ADMIN", mockFile);
+        when(userRepo.save(user)).thenReturn(user);
+
+
+        // Act
+        Optional<UserResponse> response = userService.update(updateRequest, 1L);
+
+        // Assert
+        assertTrue(response.isPresent());
+        assertEquals(Role.ADMIN, user.getRole());
+        verify(userRepo).save(user);
+    }
+
+
 }
