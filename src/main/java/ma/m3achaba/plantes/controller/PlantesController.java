@@ -30,11 +30,18 @@ public class PlantesController {
     public ResponseEntity<PageResponse<PlantesResponse>> findAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String search
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String maladie
     ){
-        PageResponse<PlantesResponse> response = (search != null && !search.isEmpty())
-                ? plantesService.findAllWithsearch(page, size, search)
-                : plantesService.findAll(page, size);
+        PageResponse<PlantesResponse> response=null;
+        if(maladie!=null && !maladie.isEmpty()){
+            response=plantesService.findallbynameMaladie(page,size,maladie);
+        }else {
+            response = (search != null && !search.isEmpty())
+                    ? plantesService.findAllWithsearch(page, size, search)
+                    : plantesService.findAll(page, size);
+        }
+
 
         return ResponseEntity.ok(response);
     }
@@ -71,5 +78,14 @@ public class PlantesController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePlantes(@PathVariable Long id) {
         plantesService.delete(id);
+    }
+    public ResponseEntity<PageResponse<PlantesResponse>>  getplantesassociee(){
+        return ResponseEntity.ok(null);
+    }
+    @GetMapping("/{id}/associee")
+    public ResponseEntity<PageResponse<PlantesResponse>> findById(@PathVariable Long id,
+                                                                  @RequestParam(defaultValue = "0") int page,
+                                                                  @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(plantesService.findplantassociee(id,page,size));
     }
 }

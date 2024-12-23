@@ -33,13 +33,4 @@ public class Plantes  extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "maladie_id")
     )
     private List<Maladies> maladies;
-
-
-
-
-
-
-
-
-
 }
