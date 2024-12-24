@@ -5,6 +5,9 @@ import ma.m3achaba.plantes.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.stereotype.Repository;
 
 
@@ -19,6 +22,8 @@ public interface UserRepo extends JpaRepository<User, Long> {
     List<User> findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCaseOrEmailContainingIgnoreCase(String nom, String prenom,String email);
     Page<User> findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCaseOrEmailContainingIgnoreCase(String nom, String prenom,String email, Pageable pageable);
     Page<User> findAllByRole(String role, Pageable pageable);
+
+    Optional<User> findByEmail(String email);
     List<User> findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCaseOrEmailContainingIgnoreCaseAndRole(
             String nom, String prenom, String email, Role role);
 
@@ -27,3 +32,4 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
 
 }
+
