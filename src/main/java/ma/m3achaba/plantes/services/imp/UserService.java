@@ -1,7 +1,7 @@
 package ma.m3achaba.plantes.services.imp;
 
+
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import ma.m3achaba.plantes.common.PageResponse;
 import ma.m3achaba.plantes.dto.UserRequest;
@@ -17,13 +17,8 @@ import ma.m3achaba.plantes.util.images.ImgService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,18 +26,11 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService, ServiceMetier<UserResponse, UserRequest> {
+public class UserService implements ServiceMetier<UserResponse, UserRequest> {
 
-    private final PasswordEncoder passwordEncoder;
     private final UserRepo userRepo;
     private final UserMapper userMapper;
     private final ImgService imgService;
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepo.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
-    }
 
     @Override
     public Optional<UserResponse> findById(Long id) {
@@ -68,7 +56,7 @@ public class UserService implements UserDetailsService, ServiceMetier<UserRespon
         String path=imgService.addImage(request.file(), ImagesFolder.USER);
 
         User user = userMapper.toEntity(request);
-        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setPassword(request.password());
         user.setRole(Optional.ofNullable(request.role()).map(Role::valueOf).orElse(Role.USER));
         user.setImage(path);
 
@@ -96,15 +84,6 @@ public class UserService implements UserDetailsService, ServiceMetier<UserRespon
             imgService.deleteImage(user.getImage());
         }
         return Optional.of(userMapper.toResponse(user));
-    }
-
-    public Optional<UserResponse> getProfile() {
-        return Optional.of(userMapper.toResponse(getCurrentUser()));
-    }
-
-    public Optional<UserResponse> updateProfile(UserRequest request) {
-        User currentUser = getCurrentUser();
-        return update(request, currentUser.getId());
     }
 
     public List<UserResponse> findAllWithSearchAndRole(String search, String role) {
@@ -144,20 +123,6 @@ public class UserService implements UserDetailsService, ServiceMetier<UserRespon
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
     }
 
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalStateException("No authenticated user found");
-        }
-
-        Object principal = authentication.getPrincipal();
-        if (!(principal instanceof UserDetails userDetails)) {
-            throw new IllegalStateException("Principal is not an instance of UserDetails");
-        }
-
-        return userRepo.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new IllegalStateException("User not found with email: " + userDetails.getUsername()));
-    }
     private boolean updateUserFields(UserRequest request, User user) {
         boolean updated = false;
 
@@ -179,9 +144,8 @@ public class UserService implements UserDetailsService, ServiceMetier<UserRespon
             updated = true;
         }
 
-        if (request.password() != null && !request.password().isBlank() &&
-                !passwordEncoder.matches(request.password(), user.getPassword())) {
-            user.setPassword(passwordEncoder.encode(request.password()));
+        if (request.password() != null && !request.password().isBlank() ) {
+            user.setPassword(request.password());
             updated = true;
         }
 
