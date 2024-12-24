@@ -1,5 +1,9 @@
 package ma.m3achaba.plantes.model;
 
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import ma.m3achaba.plantes.common.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,13 +20,14 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+
 @Entity
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class User extends BaseEntity implements UserDetails {
 
+public class User extends BaseEntity implements UserDetails {
     private String nom;
     private String prenom;
     @Column(unique = true)
@@ -33,6 +38,8 @@ public class User extends BaseEntity implements UserDetails {
     private Role role;
 
     private String image;
+    @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL)
+    private List<Commentaire_plant> commentaires;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
