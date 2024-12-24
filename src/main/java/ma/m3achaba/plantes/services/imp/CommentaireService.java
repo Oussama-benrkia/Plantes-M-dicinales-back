@@ -28,14 +28,14 @@ public class CommentaireService {
     private final CommentairepltRepository commentairepltRepository;
     private final CommentaireMapper commentaireMapper;
     private final PlantesRepository plantesRepository;
-    private final UserRepo userRepo;
+    private final UserService userService;
 
 
     public Optional<CommentaireResponse> save(CommentaireRequest commentaireRequest,Long idPlante) {
         Commentaire_plant cmt=commentaireMapper.toEntity(commentaireRequest);
         Plantes pl=plantesRepository.findById(idPlante).orElseThrow(() -> new EntityNotFoundException("Plante " + 1 + " not found"));
         cmt.setPlante(pl);
-        User use=userRepo.findById(1L).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User use=userService.getCurrentUser();
         cmt.setUtilisateur(use);
         return Optional.ofNullable(commentaireMapper.toResponse(commentairepltRepository.save(cmt)));
     }

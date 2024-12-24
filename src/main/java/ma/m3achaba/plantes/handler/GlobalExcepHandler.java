@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import ma.m3achaba.plantes.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -17,6 +18,7 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExcepHandler {
+
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ExceptionResponse> handleResourceNotFound(ResourceNotFoundException ex) {
@@ -27,6 +29,7 @@ public class GlobalExcepHandler {
                 .build();
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ExceptionResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
@@ -37,9 +40,9 @@ public class GlobalExcepHandler {
                 .build();
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ExceptionResponse> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
+    public ResponseEntity<ExceptionResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
@@ -55,4 +58,58 @@ public class GlobalExcepHandler {
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ExceptionResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        ExceptionResponse error = ExceptionResponse.builder()
+                .message("Invalid email or password.")
+                .code(HttpStatus.NOT_FOUND.value())
+                .date(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ExceptionResponse> handleDisabledException(DisabledException ex) {
+        ExceptionResponse error = ExceptionResponse.builder()
+                .message("User account is disabled.")
+                .code(HttpStatus.NOT_FOUND.value())
+                .date(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(LockedException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ExceptionResponse> handleLockedException(LockedException ex) {
+        ExceptionResponse error = ExceptionResponse.builder()
+                .message("User account is locked.")
+                .code(HttpStatus.NOT_FOUND.value())
+                .date(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AccountExpiredException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ExceptionResponse> handleAccountExpiredException(AccountExpiredException ex) {
+        ExceptionResponse error = ExceptionResponse.builder()
+                .message("User account has expired.")
+                .code(HttpStatus.NOT_FOUND.value())
+                .date(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CredentialsExpiredException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ExceptionResponse> handleCredentialsExpiredException(CredentialsExpiredException ex) {
+        ExceptionResponse error = ExceptionResponse.builder()
+                .message("User credentials have expired.")
+                .code(HttpStatus.NOT_FOUND.value())
+                .date(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 }
