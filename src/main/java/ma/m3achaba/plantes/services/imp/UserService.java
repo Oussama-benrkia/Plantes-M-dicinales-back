@@ -1,5 +1,7 @@
 package ma.m3achaba.plantes.services.imp;
 
+
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,8 @@ import ma.m3achaba.plantes.util.images.ImgService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,7 +42,7 @@ public class UserService implements UserDetailsService, ServiceMetier<UserRespon
     private final UserMapper userMapper;
     private final ImgService imgService;
 
-    @Override
+
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepo.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
@@ -68,6 +72,7 @@ public class UserService implements UserDetailsService, ServiceMetier<UserRespon
         String path=imgService.addImage(request.file(), ImagesFolder.USER);
 
         User user = userMapper.toEntity(request);
+
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(Optional.ofNullable(request.role()).map(Role::valueOf).orElse(Role.USER));
         user.setImage(path);
@@ -97,6 +102,7 @@ public class UserService implements UserDetailsService, ServiceMetier<UserRespon
         }
         return Optional.of(userMapper.toResponse(user));
     }
+
 
     public Optional<UserResponse> getProfile() {
         return Optional.of(userMapper.toResponse(getCurrentUser()));
@@ -144,6 +150,7 @@ public class UserService implements UserDetailsService, ServiceMetier<UserRespon
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
     }
 
+
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -178,6 +185,7 @@ public class UserService implements UserDetailsService, ServiceMetier<UserRespon
             user.setEmail(request.email());
             updated = true;
         }
+
 
         if (request.password() != null && !request.password().isBlank() &&
                 !passwordEncoder.matches(request.password(), user.getPassword())) {

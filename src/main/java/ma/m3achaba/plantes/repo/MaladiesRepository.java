@@ -12,4 +12,5 @@ public interface MaladiesRepository extends JpaRepository<Maladies, Long> {
     Page<Maladies> findAllByNameContainingIgnoreCase(String name, Pageable pageable);
     List<Maladies> findAllByNameContainingIgnoreCase(String name);
     boolean existsByName(String name);
+    Optional<Maladies> findByName(String name);
 }
