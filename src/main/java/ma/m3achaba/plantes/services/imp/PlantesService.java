@@ -4,16 +4,16 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import ma.m3achaba.plantes.common.PageResponse;
-import ma.m3achaba.plantes.dto.MaladiesResponse;
 import ma.m3achaba.plantes.dto.PlantesRequest;
 import ma.m3achaba.plantes.dto.PlantesResponse;
-import ma.m3achaba.plantes.mapper.MaladiesMapper;
 import ma.m3achaba.plantes.mapper.PlantesMapper;
 import ma.m3achaba.plantes.model.Maladies;
 import ma.m3achaba.plantes.model.Plantes;
 import ma.m3achaba.plantes.repo.MaladiesRepository;
 import ma.m3achaba.plantes.repo.PlantesRepository;
 import ma.m3achaba.plantes.services.ServiceMetier;
+import ma.m3achaba.plantes.util.images.ImagesFolder;
+import ma.m3achaba.plantes.util.images.ImgService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
@@ -28,6 +28,7 @@ public class PlantesService implements ServiceMetier<PlantesResponse, PlantesReq
     private final PlantesRepository plantesRepository;
     private final PlantesMapper plantesMapper;
     private final MaladiesRepository maladiesRepository;
+    private final ImgService imgService;
 
     private Plantes findPlanteById(Long id) {
         return plantesRepository.findById(id)
@@ -81,8 +82,11 @@ public class PlantesService implements ServiceMetier<PlantesResponse, PlantesReq
         if (maladies.size() != maladieIds.size()) {
             throw new EntityNotFoundException("Some Maladie IDs are not valid");
         }
+        String path=imgService.addImage(t.images(), ImagesFolder.PLANTE);
+
         Plantes plante = plantesMapper.toEntity(t);
         plante.setMaladies(maladies);
+        plante.setImages(path);
         Plantes res = plantesRepository.save(plante);
         return Optional.ofNullable(plantesMapper.toResponse(res));
     }
@@ -120,6 +124,12 @@ public class PlantesService implements ServiceMetier<PlantesResponse, PlantesReq
             plantes.setPrecautions(t.precautions());
             change = true;
         }
+        if(!t.images().isEmpty()) {
+            imgService.deleteImage(plantes.getImages());
+            String path=imgService.addImage(t.images(), ImagesFolder.PLANTE);
+            plantes.setImages(path);
+            change = true;
+        }
 
         if (change) {
             plantes = plantesRepository.save(plantes);
@@ -132,6 +142,9 @@ public class PlantesService implements ServiceMetier<PlantesResponse, PlantesReq
     public Optional<PlantesResponse> delete(Long id) {
         Plantes plantes = findPlanteById(id);
         plantes.getMaladies().clear();
+        if(!plantes.getImages().isEmpty()) {
+            imgService.deleteImage(plantes.getImages());
+        }
         plantesRepository.delete(plantes);
         return Optional.ofNullable(plantesMapper.toResponse(plantes));
     }

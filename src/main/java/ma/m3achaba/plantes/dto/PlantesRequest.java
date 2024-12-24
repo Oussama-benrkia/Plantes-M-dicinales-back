@@ -3,6 +3,7 @@ package ma.m3achaba.plantes.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import ma.m3achaba.plantes.validation.OnCreate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,6 +26,6 @@ public record PlantesRequest(
         @NotNull(groups = OnCreate.class, message = "maladies must not be blank")
         List<Integer> maladie,
 
-        String images
+        MultipartFile images
 ) {
 }

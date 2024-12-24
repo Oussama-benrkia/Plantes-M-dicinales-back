@@ -1,8 +1,6 @@
 package ma.m3achaba.plantes.controller;
 import lombok.RequiredArgsConstructor;
 import ma.m3achaba.plantes.common.PageResponse;
-import ma.m3achaba.plantes.dto.MaladiesRequest;
-import ma.m3achaba.plantes.dto.MaladiesResponse;
 import ma.m3achaba.plantes.dto.PlantesRequest;
 import ma.m3achaba.plantes.dto.PlantesResponse;
 import ma.m3achaba.plantes.exception.ResourceNotFoundException;
@@ -58,7 +56,7 @@ public class PlantesController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<PlantesResponse> savePlantes(
-            @Validated(OnCreate.class) @RequestBody PlantesRequest request
+            @Validated(OnCreate.class) @ModelAttribute  PlantesRequest request
     ) {
         return plantesService.save(request)
                 .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response))
@@ -67,7 +65,7 @@ public class PlantesController {
     @PutMapping("/{id}")
     public ResponseEntity<PlantesResponse> updatePlantes(
             @PathVariable Long id,
-            @Validated(OnUpdate.class) @RequestBody PlantesRequest request
+            @Validated(OnUpdate.class) @ModelAttribute  PlantesRequest request
     ) {
         return plantesService.update(request, id)
                 .map(ResponseEntity::ok)
@@ -79,9 +77,8 @@ public class PlantesController {
     public void deletePlantes(@PathVariable Long id) {
         plantesService.delete(id);
     }
-    public ResponseEntity<PageResponse<PlantesResponse>>  getplantesassociee(){
-        return ResponseEntity.ok(null);
-    }
+
+
     @GetMapping("/{id}/associee")
     public ResponseEntity<PageResponse<PlantesResponse>> findById(@PathVariable Long id,
                                                                   @RequestParam(defaultValue = "0") int page,
