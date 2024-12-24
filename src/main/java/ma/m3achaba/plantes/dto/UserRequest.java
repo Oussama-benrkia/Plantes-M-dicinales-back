@@ -22,4 +22,3 @@ public record UserRequest(
         String role,
         MultipartFile file
 ) {}
-

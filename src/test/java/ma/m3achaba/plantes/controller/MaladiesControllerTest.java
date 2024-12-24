@@ -1,7 +1,6 @@
 package ma.m3achaba.plantes.controller;
 
-
-import ma.m3achaba.plantes.services.imp.JwtUtils;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +38,7 @@ public class MaladiesControllerTest {
 
     @MockitoBean
     private MaladiesService maladiesService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -58,6 +58,7 @@ public class MaladiesControllerTest {
     @Test
     void findById_ExistingId_ReturnsOk() throws Exception {
         when(maladiesService.findById(1L)).thenReturn(Optional.of(mockResponse));
+
         mockMvc.perform(get("/api/maladies/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))

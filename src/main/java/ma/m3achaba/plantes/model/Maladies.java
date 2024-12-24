@@ -19,5 +19,4 @@ public class Maladies extends BaseEntity {
     private String name;
     @ManyToMany(mappedBy = "maladies")
     private List<Plantes> plantes;
-
 }
