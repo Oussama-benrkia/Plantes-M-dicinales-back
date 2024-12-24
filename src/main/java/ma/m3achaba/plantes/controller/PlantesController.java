@@ -1,9 +1,12 @@
 package ma.m3achaba.plantes.controller;
 import lombok.RequiredArgsConstructor;
 import ma.m3achaba.plantes.common.PageResponse;
+import ma.m3achaba.plantes.dto.CommentaireRequest;
+import ma.m3achaba.plantes.dto.CommentaireResponse;
 import ma.m3achaba.plantes.dto.PlantesRequest;
 import ma.m3achaba.plantes.dto.PlantesResponse;
 import ma.m3achaba.plantes.exception.ResourceNotFoundException;
+import ma.m3achaba.plantes.services.imp.CommentaireService;
 import ma.m3achaba.plantes.services.imp.PlantesService;
 import ma.m3achaba.plantes.validation.OnCreate;
 import ma.m3achaba.plantes.validation.OnUpdate;
@@ -18,6 +21,7 @@ import java.util.List;
 @RequestMapping("/api/plantes")
 public class PlantesController {
     private final PlantesService plantesService;
+    private final CommentaireService commentaireService;
     @GetMapping("/{id}")
     public ResponseEntity<PlantesResponse> findById(@PathVariable Long id) {
         return plantesService.findById(id)
@@ -84,5 +88,22 @@ public class PlantesController {
                                                                   @RequestParam(defaultValue = "0") int page,
                                                                   @RequestParam(defaultValue = "5") int size) {
         return ResponseEntity.ok(plantesService.findplantassociee(id,page,size));
+    }
+    @PostMapping("/commentaire/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<CommentaireResponse> saveCommentaire(@PathVariable Long id,
+                                                               @Validated(OnCreate.class) @RequestBody CommentaireRequest request
+    ) {
+        return commentaireService.save(request,id)
+                .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response))
+                .orElseThrow(() -> new ResourceNotFoundException("Failed to save Plantes. Please check your request."));
+    }
+    @GetMapping("/commentaire/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<PageResponse<CommentaireResponse>> GetComCommentaire(@PathVariable Long id,
+                                                                               @RequestParam(defaultValue = "0") int page,
+                                                                               @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(commentaireService.list(id,page,size));
+
     }
 }

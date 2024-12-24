@@ -1,12 +1,11 @@
 package ma.m3achaba.plantes.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import ma.m3achaba.plantes.common.BaseEntity;
+
+import java.util.List;
 
 
 @Entity
@@ -26,6 +25,7 @@ public class User extends BaseEntity {
     private Role role;
 
     private String image;
-
+    @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL)
+    private List<Commentaire_plant> commentaires;
 
 }

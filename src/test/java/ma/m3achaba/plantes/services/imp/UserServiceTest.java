@@ -51,7 +51,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         userRequest = new UserRequest("John", "Doe", "john.doe@example.com", "password123", "USER", null);
-        user = new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, null);
+        user = new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, null,null);
     }
     @Test
     void testFindAll() {
@@ -205,8 +205,8 @@ class UserServiceTest {
         String role = ""; // Pas de rôle
         Pageable pageable = PageRequest.of(page, size);
         Page<User> usersPage = new PageImpl<>(List.of(
-                new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, ""),
-                new User("Johnny", "Smith", "johnny.smith@example.com", "5678", Role.ADMIN, "")
+                new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, "",null),
+                new User("Johnny", "Smith", "johnny.smith@example.com", "5678", Role.ADMIN, "",null)
         ));
 
         // Simulation des dépendances
@@ -232,7 +232,7 @@ class UserServiceTest {
         String role = "USER"; // Avec rôle
         Pageable pageable = PageRequest.of(page, size);
         Page<User> usersPage = new PageImpl<>(List.of(
-                new User("Jane", "Smith", "jane.smith@example.com", "5678", Role.USER, "")
+                new User("Jane", "Smith", "jane.smith@example.com", "5678", Role.USER, "",null)
         ));
 
         // Simulation des dépendances
@@ -253,8 +253,8 @@ class UserServiceTest {
         // Données simulées
         String role = "USER";
         List<User> users = List.of(
-                new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, ""),
-                new User("Jane", "Smith", "jane.smith@example.com", "5678", Role.USER, "")
+                new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, "",null),
+                new User("Jane", "Smith", "jane.smith@example.com", "5678", Role.USER, "",null)
         );
         List<UserResponse> userResponses = users.stream()
                 .map(user -> new UserResponse(user.getId(), user.getNom(), user.getPrenom(), user.getEmail(), user.getRole().name(), user.getImage()))
@@ -305,8 +305,8 @@ class UserServiceTest {
     void testFindAllUsers() {
         // Simuler une liste d'utilisateurs
         List<User> users = List.of(
-                new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, null),
-                new User("Jane", "Smith", "jane.smith@example.com", "5678", Role.ADMIN, null)
+                new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, null,null),
+                new User("Jane", "Smith", "jane.smith@example.com", "5678", Role.ADMIN, null,null)
         );
 
         // Configurer le comportement du UserRepo
@@ -338,7 +338,7 @@ class UserServiceTest {
     void testDeleteUserWithoutImage() {
         // Simuler les données
         Long userId = 2L;
-        User user = new User("Jane", "Smith", "jane.smith@example.com", "5678", Role.ADMIN, "");
+        User user = new User("Jane", "Smith", "jane.smith@example.com", "5678", Role.ADMIN, "",null);
         UserResponse userResponse = new UserResponse(2L, "Jane", "Smith", "jane.smith@example.com", "ADMIN", "");
 
         // Configurer les comportements des dépendances
@@ -384,8 +384,8 @@ class UserServiceTest {
         String search = "John";
         String role = ""; // Rôle vide
         List<User> users = List.of(
-                new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, ""),
-                new User("Johnny", "Smith", "johnny.smith@example.com", "5678", Role.ADMIN, "")
+                new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, "",null),
+                new User("Johnny", "Smith", "johnny.smith@example.com", "5678", Role.ADMIN, "",null)
         );
 
         // Simulation des dépendances
@@ -415,10 +415,8 @@ class UserServiceTest {
         // Simuler les données
         Long userId = 3L;
         String imagePath = "images/user3.png";
-        User user = new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, imagePath);
+        User user = new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, imagePath,null);
         UserResponse userResponse = new UserResponse(3L, "John", "Doe", "john.doe@example.com", "USER", imagePath);
-
-        // Configurer les comportements des dépendances
         when(userRepo.findById(userId)).thenReturn(Optional.of(user));
         when(imgService.deleteImage(imagePath)).thenReturn(true); // Simulation correcte pour une méthode avec retour
         doNothing().when(userRepo).delete(user);
