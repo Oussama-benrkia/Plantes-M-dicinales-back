@@ -21,7 +21,6 @@ class UserMapperTest {
 
     @InjectMocks
     private UserMapper userMapper;
-
     private UserRequest userRequest;
     private User user;
 
