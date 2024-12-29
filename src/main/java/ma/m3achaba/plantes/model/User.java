@@ -28,4 +28,7 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL)
     private List<Commentaire_plant> commentaires;
 
+    @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL)
+    private List<Commentaire_article> commentairesarticle;
+
 }
