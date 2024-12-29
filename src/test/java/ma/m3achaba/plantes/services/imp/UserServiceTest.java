@@ -51,7 +51,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         userRequest = new UserRequest("John", "Doe", "john.doe@example.com", "password123", "USER", null);
-        user = new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, null,null);
+        user = new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, null,null,null);
     }
     @Test
     void testFindAll() {
@@ -205,8 +205,8 @@ class UserServiceTest {
         String role = ""; // Pas de rôle
         Pageable pageable = PageRequest.of(page, size);
         Page<User> usersPage = new PageImpl<>(List.of(
-                new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, "",null),
-                new User("Johnny", "Smith", "johnny.smith@example.com", "5678", Role.ADMIN, "",null)
+                new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, "",null,null),
+                new User("Johnny", "Smith", "johnny.smith@example.com", "5678", Role.ADMIN, "",null,null)
         ));
 
         // Simulation des dépendances

@@ -9,19 +9,17 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Commentaire_plant extends Commentaire {
+public class Commentaire_article extends Commentaire{
     @ManyToOne
     @JoinColumn(name = "utilisateur_id")
     private User utilisateur;
 
     @ManyToOne
-    @JoinColumn(name = "plantes_id") // Clé étrangère pour relier à Plantes
-    private Plantes plantes;
+    @JoinColumn(name = "article_id", nullable = false) // Clé étrangère pour article
+    private Article article;
 }

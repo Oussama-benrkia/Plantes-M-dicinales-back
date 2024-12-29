@@ -29,10 +29,14 @@ public class CommentaireService {
     private final CommentaireMapper commentaireMapper;
     private final PlantesRepository plantesRepository;
     private final UserService userService;
+    private final UserRepo userRepo;
+    private final ArticleRepository articleRepository;
+    private final CommentaireartRepository commentaireartRepository;
 
 
-    public Optional<CommentaireResponse> save(CommentaireRequest commentaireRequest,Long idPlante) {
-        Commentaire_plant cmt=commentaireMapper.toEntity(commentaireRequest);
+
+    public Optional<CommentaireResponse> save_plante(CommentaireRequest commentaireRequest,Long idPlante) {
+        Commentaire_plant cmt=commentaireMapper.toEntityPlante(commentaireRequest);
         Plantes pl=plantesRepository.findById(idPlante).orElseThrow(() -> new EntityNotFoundException("Plante " + 1 + " not found"));
         cmt.setPlante(pl);
         User use=userService.getCurrentUser();
@@ -40,10 +44,10 @@ public class CommentaireService {
         return Optional.ofNullable(commentaireMapper.toResponse(commentairepltRepository.save(cmt)));
     }
 
-    public PageResponse<CommentaireResponse> list(Long idPlante,int page, int size) {
+    public PageResponse<CommentaireResponse> list_plnate(Long idPlante,int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Plantes pl=plantesRepository.findById(idPlante).orElseThrow(() -> new EntityNotFoundException("Plante " + 1 + " not found"));
-        Page<Commentaire_plant> commentaire=commentairepltRepository.findAllByPlante(pl,pageable);
+        Plantes pl = plantesRepository.findById(idPlante).orElseThrow(() -> new EntityNotFoundException("Plante " + 1 + " not found"));
+        Page<Commentaire_plant> commentaire = commentairepltRepository.findAllByPlantes(pl, pageable);
         return PageResponse.<CommentaireResponse>builder()
                 .totalPages(commentaire.getTotalPages())
                 .totalElements(commentaire.getTotalElements())
@@ -54,5 +58,29 @@ public class CommentaireService {
                 .content(commentaire.getContent().stream().map(commentaireMapper::toResponse).collect(Collectors.toList()))
                 .build();
     }
+        public Optional<CommentaireResponse> save_article(CommentaireRequest commentaireRequest, Long idArticle) {
+            Commentaire_article cmt = commentaireMapper.toEntityArticle(commentaireRequest);
+            Article article = articleRepository.findById(idArticle).orElseThrow(() -> new EntityNotFoundException("Article " + idArticle + " not found"));
+            cmt.setArticle(article);
+            User user = userRepo.findById(1L).orElseThrow(() -> new EntityNotFoundException("User not found"));
+            cmt.setUtilisateur(user);
+            return Optional.ofNullable(commentaireMapper.toResponse(commentaireartRepository.save(cmt)));
+        }
+
+        public PageResponse<CommentaireResponse> list_article(Long idArticle, int page, int size) {
+            Pageable pageable = PageRequest.of(page, size);
+            Article article = articleRepository.findById(idArticle).orElseThrow(() -> new EntityNotFoundException("Article " + idArticle + " not found"));
+            Page<Commentaire_article> commentaires = commentaireartRepository.findAllByArticle(article, pageable);
+            return PageResponse.<CommentaireResponse>builder()
+                    .totalPages(commentaires.getTotalPages())
+                    .totalElements(commentaires.getTotalElements())
+                    .last(commentaires.isLast())
+                    .first(commentaires.isFirst())
+                    .number(commentaires.getNumber())
+                    .size(commentaires.getSize())
+                    .content(commentaires.getContent().stream().map(commentaireMapper::toResponse).collect(Collectors.toList()))
+                    .build();
+        }
+
 
 }

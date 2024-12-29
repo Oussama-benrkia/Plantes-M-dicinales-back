@@ -21,4 +21,3 @@ public class UserResponse {
     private String role;
     private String image;
 }
-

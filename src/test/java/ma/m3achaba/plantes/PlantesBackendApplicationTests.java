@@ -8,7 +8,6 @@ import org.mockito.Mockito;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
@@ -60,6 +59,7 @@ public class PlantesBackendApplicationTests {
             mockedFiles.verify(() -> Files.createDirectories(path), times(1));
         }
     }
+
     @Test
     void testDirectoryAlreadyExists() throws Exception {
         // Mocking static Files within the test method

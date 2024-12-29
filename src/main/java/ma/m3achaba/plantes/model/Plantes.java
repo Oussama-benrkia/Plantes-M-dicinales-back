@@ -34,6 +34,10 @@ public class Plantes  extends BaseEntity {
     )
     private List<Maladies> maladies;
 
-    @OneToMany(mappedBy = "plante", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "plantes")
+    private List<Article> articles;
+
+    // Update mappedBy to match the property name in Article
+    @OneToMany(mappedBy = "plantes", cascade = CascadeType.ALL)
     private List<Commentaire_plant> commentaires;
 }

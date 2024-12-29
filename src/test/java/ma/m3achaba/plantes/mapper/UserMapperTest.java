@@ -28,7 +28,7 @@ class UserMapperTest {
     void setUp() {
         // Initialize the test data
         userRequest = new UserRequest("John", "Doe", "john.doe@example.com", "password123", "USER", null);
-        user = new User("John", "Doe", "john.doe@example.com", "password123", Role.USER, null,null);
+        user = new User("John", "Doe", "john.doe@example.com", "password123", Role.USER, null,null,null);
 
         // Use lenient stubbing to avoid unnecessary stubbing exceptions
         lenient().when(environment.getProperty("server.address", "localhost")).thenReturn("localhost");
