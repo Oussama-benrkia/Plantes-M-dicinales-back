@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CommentairepltRepository extends JpaRepository<Commentaire_plant,Long> {
-    Page<Commentaire_plant> findAllByPlante(Plantes plante, Pageable pageable);
+    Page<Commentaire_plant> findAllByPlantes(Plantes plante, Pageable pageable);
 }

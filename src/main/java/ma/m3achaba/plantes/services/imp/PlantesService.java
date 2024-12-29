@@ -9,6 +9,7 @@ import ma.m3achaba.plantes.dto.PlantesResponse;
 import ma.m3achaba.plantes.mapper.PlantesMapper;
 import ma.m3achaba.plantes.model.Maladies;
 import ma.m3achaba.plantes.model.Plantes;
+import ma.m3achaba.plantes.repo.CommentairepltRepository;
 import ma.m3achaba.plantes.repo.MaladiesRepository;
 import ma.m3achaba.plantes.repo.PlantesRepository;
 import ma.m3achaba.plantes.services.ServiceMetier;
@@ -29,6 +30,7 @@ public class PlantesService implements ServiceMetier<PlantesResponse, PlantesReq
     private final PlantesMapper plantesMapper;
     private final MaladiesRepository maladiesRepository;
     private final ImgService imgService;
+    private final CommentairepltRepository  commentairepltRepository;
 
     private Plantes findPlanteById(Long id) {
         return plantesRepository.findById(id)
@@ -142,6 +144,7 @@ public class PlantesService implements ServiceMetier<PlantesResponse, PlantesReq
     public Optional<PlantesResponse> delete(Long id) {
         Plantes plantes = findPlanteById(id);
         plantes.getMaladies().clear();
+        plantes.getCommentaires().clear();
         if(!plantes.getImages().isEmpty()) {
             imgService.deleteImage(plantes.getImages());
         }
