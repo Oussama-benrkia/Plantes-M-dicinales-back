@@ -26,6 +26,6 @@ public class User extends BaseEntity {
 
     private String image;
     @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL)
-    private List<Commentaire_plant> commentaires;
+    private List<PlantComment> commentaires;
 
 }

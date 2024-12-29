@@ -9,7 +9,6 @@ import ma.m3achaba.plantes.dto.ArticleResponse;
 import ma.m3achaba.plantes.dto.PlantesResponse;
 import ma.m3achaba.plantes.mapper.ArticleMapper;
 import ma.m3achaba.plantes.model.Article;
-import ma.m3achaba.plantes.model.Maladies;
 import ma.m3achaba.plantes.model.Plantes;
 import ma.m3achaba.plantes.repo.ArticleRepository;
 import ma.m3achaba.plantes.repo.PlantesRepository;
@@ -20,6 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 @Service
@@ -73,7 +74,8 @@ public class ArticleService implements ServiceMetier<ArticleResponse, ArticleReq
 
     @Override
     public Optional<ArticleResponse> save(ArticleRequest t) {
-        if (articleRepository.existsByTitleContainingIgnoreCase(t.titre())) {
+        boolean b=articleRepository.existsByTitleContainingIgnoreCase(t.titre());
+        if (b) {
             throw new EntityNotFoundException("Article with title '" + t.titre() + "' already exists");
         }
 
@@ -137,17 +139,25 @@ public class ArticleService implements ServiceMetier<ArticleResponse, ArticleReq
                 .toList();
     }
 
-    public PageResponse<ArticleResponse> findallbynameMaladie(int page, int size, String maladieName) {
+    public PageResponse<ArticleResponse> findAllByMaladieName(int page, int size, String maladieName) {
         Pageable pageable = PageRequest.of(page, size);
-        Plantes maladies=plantesRepository.findAllByNameContainingIgnoreCase(maladieName).get(0);
-        if (maladies == null) {
-            createEmptyPageResponse(pageable);
+
+        // Input validation
+        if (maladieName == null || maladieName.trim().isEmpty()) {
+            return createEmptyPageResponse(pageable);
         }
-        return createPageResponse(articleRepository.findAllByPlantes(maladies, pageable));
+        List<Plantes> matchingPlantes = plantesRepository.findAllByNameContainingIgnoreCase(maladieName);
+        if (matchingPlantes.isEmpty()) {
+            return createEmptyPageResponse(pageable);
+        }
+        Plantes maladie = matchingPlantes.get(0);
+        Page<Article> articlesPage = articleRepository.findAllByPlantes(maladie, pageable);
+
+        return createPageResponse(articlesPage);
     }
-    private PageResponse<PlantesResponse> createEmptyPageResponse(Pageable pageable) {
-        return PageResponse.<PlantesResponse>builder()
-                .content(List.of()) // Empty list
+    private PageResponse<ArticleResponse> createEmptyPageResponse(Pageable pageable) {
+        return PageResponse.<ArticleResponse>builder()  // Fixed generic type
+                .content(Collections.emptyList())       // Use Collections.emptyList()
                 .number(pageable.getPageNumber())
                 .size(pageable.getPageSize())
                 .totalElements(0)

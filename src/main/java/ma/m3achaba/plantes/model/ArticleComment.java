@@ -13,8 +13,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class Commentaire_article extends Commentaire{
+@Data@EqualsAndHashCode(callSuper = true)
+
+
+public class ArticleComment  extends Commentaire{
     @ManyToOne
     @JoinColumn(name = "utilisateur_id")
     private User utilisateur;

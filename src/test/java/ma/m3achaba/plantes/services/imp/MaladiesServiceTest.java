@@ -9,7 +9,6 @@ import ma.m3achaba.plantes.dto.MaladiesResponse;
 import ma.m3achaba.plantes.mapper.MaladiesMapper;
 import ma.m3achaba.plantes.model.Maladies;
 import ma.m3achaba.plantes.repo.MaladiesRepository;
-import ma.m3achaba.plantes.services.imp.MaladiesService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class MaladiesServiceTest {
+ class MaladiesServiceTest {
 
     @Mock
     private MaladiesRepository maladiesRepository;

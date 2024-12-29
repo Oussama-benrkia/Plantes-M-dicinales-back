@@ -2,8 +2,11 @@ package ma.m3achaba.plantes.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ma.m3achaba.plantes.common.PageResponse;
+import ma.m3achaba.plantes.dto.CommentaireRequest;
+import ma.m3achaba.plantes.dto.CommentaireResponse;
 import ma.m3achaba.plantes.dto.PlantesRequest;
 import ma.m3achaba.plantes.dto.PlantesResponse;
+import ma.m3achaba.plantes.services.imp.CommentaireService;
 import ma.m3achaba.plantes.services.imp.PlantesService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -40,14 +42,23 @@ class PlantesControllerTest {
 
     @MockitoBean // Change @Mock to @MockBean
     private PlantesService plantesService;
+    @MockitoBean
+    private CommentaireService commentaireService;
 
     private PlantesResponse mockResponse;
     private PlantesRequest mockRequest;
-
+    private CommentaireResponse mockCommentResponse;
+    private CommentaireRequest mockCommentRequest;
     @BeforeEach
     void setUp() {
-        // Your existing setUp code remains the same
-        mockResponse = PlantesResponse.builder()
+        mockCommentResponse = CommentaireResponse.builder()
+                .id(1L)
+                .commentaire("Test Comment")
+                .date("2024-01-01")
+                .name("Test User")
+                .build();
+
+        mockCommentRequest = new CommentaireRequest("Test Comment");        mockResponse = PlantesResponse.builder()
                 .id(1L)
                 .name("Test Plante")
                 .description("Test Description")
@@ -173,11 +184,11 @@ class PlantesControllerTest {
     @Test
     void findById_ReturnsPlantesAssociee() throws Exception {
         // Create mock data for the test
-        PlantesResponse mockResponse = new PlantesResponse();
-        mockResponse.setName("Test Plante");
+        PlantesResponse mockResponse1 = new PlantesResponse();
+        mockResponse1.setName("Test Plante");
 
         PageResponse<PlantesResponse> pageResponse = new PageResponse<>();
-        pageResponse.setContent(Collections.singletonList(mockResponse)); // You can add more elements if needed
+        pageResponse.setContent(Collections.singletonList(mockResponse1)); // You can add more elements if needed
         pageResponse.setTotalElements(1);
         pageResponse.setTotalPages(1);
 
@@ -196,6 +207,7 @@ class PlantesControllerTest {
         // Verify that the service method was called with the correct parameters
         verify(plantesService, times(1)).findplantassociee(1L, 0, 5);
     }
+
     @Test
     void findAllPlantes_WithSearch_ReturnsFilteredList() throws Exception {
         // Mock data for the test
@@ -208,7 +220,7 @@ class PlantesControllerTest {
         List<PlantesResponse> mockList = Arrays.asList(mockPlante1, mockPlante2);
 
         // Mock the service method when search is applied
-        when(plantesService.findAllWithSearch("Test")).thenReturn(mockList);
+        when(plantesService.findAllWithSearchList("Test")).thenReturn(mockList);
 
         // Perform the GET request with search parameter
         mockMvc.perform(get("/api/plantes/list")
@@ -219,7 +231,7 @@ class PlantesControllerTest {
                 .andExpect(jsonPath("$[1].name").value("Test Plante 2"));
 
         // Verify that the service method was called with the search parameter
-        verify(plantesService, times(1)).findAllWithSearch("Test");
+        verify(plantesService, times(1)).findAllWithSearchList("Test");
     }
 
     @Test
@@ -246,4 +258,84 @@ class PlantesControllerTest {
         // Verify that the service method was called with no search parameter
         verify(plantesService, times(1)).findAll();
     }
+    @Test
+    void saveCommentaire_ValidRequest_ReturnsCreated() throws Exception {
+        when(commentaireService.savePlante(any(CommentaireRequest.class), eq(1L)))
+                .thenReturn(Optional.of(mockCommentResponse));
+
+        mockMvc.perform(post("/api/plantes/commentaire/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(mockCommentRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.commentaire").value("Test Comment"));
+    }
+
+    @Test
+    void saveCommentaire_InvalidRequest_ReturnsNotFound() throws Exception {
+        when(commentaireService.savePlante(any(CommentaireRequest.class), eq(99L)))
+                .thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/api/plantes/commentaire/99")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(mockCommentRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getComm_ValidId_ReturnsPageResponse() throws Exception {
+        PageResponse<CommentaireResponse> pageResponse = PageResponse.<CommentaireResponse>builder()
+                .content(Collections.singletonList(mockCommentResponse))
+                .build();
+
+        when(commentaireService.listPlante(1L, 0, 5)).thenReturn(pageResponse);
+
+        mockMvc.perform(get("/api/plantes/commentaire/1")
+                        .param("page", "0")
+                        .param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1L))
+                .andExpect(jsonPath("$.content[0].commentaire").value("Test Comment"));
+    }
+
+    @Test
+    void getComm_NonExistingId_ReturnsEmptyPage() throws Exception {
+        PageResponse<CommentaireResponse> emptyPageResponse = PageResponse.<CommentaireResponse>builder()
+                .content(Collections.emptyList())
+                .build();
+
+        when(commentaireService.listPlante(99L, 0, 5)).thenReturn(emptyPageResponse);
+
+        mockMvc.perform(get("/api/plantes/commentaire/99")
+                        .param("page", "0")
+                        .param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty());
+    }
+    @Test
+    void savePlantes_ValidRequest_ReturnsCreated() throws Exception {
+        PlantesResponse mockPlantesResponse = PlantesResponse.builder()
+                .id(1L)
+                .name("Test Plante")
+                .description("Test Description")
+                .build();
+
+
+
+        when(plantesService.save(any(PlantesRequest.class)))
+                .thenReturn(Optional.of(mockPlantesResponse));
+
+        mockMvc.perform(post("/api/plantes")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .param("name", "Test Plante")
+                        .param("description", "Test Description")
+                        .param("region", "Test Region")
+                        .param("utilisation", "Test Utilisation")
+                        .param("precautions", "Test Precautions")
+                        .param("maladie", "1,2")) // Incluez les maladies
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Test Plante"));
+    }
+
 }

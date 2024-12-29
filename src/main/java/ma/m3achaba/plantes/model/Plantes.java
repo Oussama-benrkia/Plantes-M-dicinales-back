@@ -16,7 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-
 public class Plantes  extends BaseEntity {
 
     private String name;
@@ -39,5 +38,5 @@ public class Plantes  extends BaseEntity {
 
     // Update mappedBy to match the property name in Article
     @OneToMany(mappedBy = "plantes", cascade = CascadeType.ALL)
-    private List<Commentaire_plant> commentaires;
+    private List<PlantComment> commentaires;
 }

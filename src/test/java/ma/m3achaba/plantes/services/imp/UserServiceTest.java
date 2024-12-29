@@ -257,14 +257,14 @@ class UserServiceTest {
                 new User("Jane", "Smith", "jane.smith@example.com", "5678", Role.USER, "",null)
         );
         List<UserResponse> userResponses = users.stream()
-                .map(user -> new UserResponse(user.getId(), user.getNom(), user.getPrenom(), user.getEmail(), user.getRole().name(), user.getImage()))
+                .map(user1 -> new UserResponse(user1.getId(), user1.getNom(), user1.getPrenom(), user1.getEmail(), user1.getRole().name(), user1.getImage()))
                 .toList();
 
         // Simulation des dépendances
         when(userRepo.findAllByRole(role)).thenReturn(users);
         when(userMapper.toResponse(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            return new UserResponse(user.getId(), user.getNom(), user.getPrenom(), user.getEmail(), user.getRole().name(), user.getImage());
+            User user1 = invocation.getArgument(0);
+            return new UserResponse(user1.getId(), user1.getNom(), user1.getPrenom(), user1.getEmail(), user1.getRole().name(), user1.getImage());
         });
 
         // Appel de la méthode
@@ -338,13 +338,13 @@ class UserServiceTest {
     void testDeleteUserWithoutImage() {
         // Simuler les données
         Long userId = 2L;
-        User user = new User("Jane", "Smith", "jane.smith@example.com", "5678", Role.ADMIN, "",null);
+        User user1 = new User("Jane", "Smith", "jane.smith@example.com", "5678", Role.ADMIN, "",null);
         UserResponse userResponse = new UserResponse(2L, "Jane", "Smith", "jane.smith@example.com", "ADMIN", "");
 
         // Configurer les comportements des dépendances
-        when(userRepo.findById(userId)).thenReturn(Optional.of(user));
-        doNothing().when(userRepo).delete(user);
-        when(userMapper.toResponse(user)).thenReturn(userResponse);
+        when(userRepo.findById(userId)).thenReturn(Optional.of(user1));
+        doNothing().when(userRepo).delete(user1);
+        when(userMapper.toResponse(user1)).thenReturn(userResponse);
 
         // Appel de la méthode delete
         Optional<UserResponse> response = userService.delete(userId);
@@ -356,9 +356,9 @@ class UserServiceTest {
 
         // Vérification des appels
         verify(userRepo).findById(userId);
-        verify(userRepo).delete(user);
+        verify(userRepo).delete(user1);
         verify(imgService, never()).deleteImage(anyString());
-        verify(userMapper).toResponse(user);
+        verify(userMapper).toResponse(user1);
     }
 
     @Test
@@ -392,8 +392,8 @@ class UserServiceTest {
         when(userRepo.findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCaseOrEmailContainingIgnoreCase(
                 search, search, search)).thenReturn(users);
         when(userMapper.toResponse(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            return new UserResponse(user.getId(), user.getNom(), user.getPrenom(), user.getEmail(), user.getRole().name(), user.getImage());
+            User user1 = invocation.getArgument(0);
+            return new UserResponse(user1.getId(), user1.getNom(), user1.getPrenom(), user1.getEmail(), user1.getRole().name(), user1.getImage());
         });
 
         // Appel de la méthode
@@ -415,12 +415,12 @@ class UserServiceTest {
         // Simuler les données
         Long userId = 3L;
         String imagePath = "images/user3.png";
-        User user = new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, imagePath,null);
+        User user1 = new User("John", "Doe", "john.doe@example.com", "1234", Role.USER, imagePath,null);
         UserResponse userResponse = new UserResponse(3L, "John", "Doe", "john.doe@example.com", "USER", imagePath);
-        when(userRepo.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepo.findById(userId)).thenReturn(Optional.of(user1));
         when(imgService.deleteImage(imagePath)).thenReturn(true); // Simulation correcte pour une méthode avec retour
-        doNothing().when(userRepo).delete(user);
-        when(userMapper.toResponse(user)).thenReturn(userResponse);
+        doNothing().when(userRepo).delete(user1);
+        when(userMapper.toResponse(user1)).thenReturn(userResponse);
 
         // Appel de la méthode delete
         Optional<UserResponse> response = userService.delete(userId);
@@ -432,9 +432,9 @@ class UserServiceTest {
 
         // Vérification des appels
         verify(userRepo).findById(userId);
-        verify(userRepo).delete(user);
+        verify(userRepo).delete(user1);
         verify(imgService).deleteImage(imagePath);
-        verify(userMapper).toResponse(user);
+        verify(userMapper).toResponse(user1);
     }
 
 

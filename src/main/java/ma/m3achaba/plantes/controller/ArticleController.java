@@ -39,7 +39,7 @@ public class ArticleController {
     ) {
         PageResponse<ArticleResponse> response=null;
         if(plante!=null && !plante.isEmpty()){
-            response=articleService.findallbynameMaladie(page,size,plante);
+            response=articleService.findAllByMaladieName(page,size,plante);
         }else {
             response = (search != null && !search.isEmpty())
                     ? articleService.findAllWithSearch(page, size, search)
@@ -86,16 +86,16 @@ public class ArticleController {
     public ResponseEntity<CommentaireResponse> saveCommentaire(@PathVariable Long id,
                                                                @Validated(OnCreate.class) @RequestBody CommentaireRequest request
     ) {
-        return commentaireService.save_article(request,id)
+        return commentaireService.saveArticle(request,id)
                 .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response))
                 .orElseThrow(() -> new ResourceNotFoundException("Failed to save Plantes. Please check your request."));
     }
     @GetMapping("/commentaire/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<PageResponse<CommentaireResponse>> GetComCommentaire(@PathVariable Long id,
+    public ResponseEntity<PageResponse<CommentaireResponse>> getCommentaire(@PathVariable Long id,
                                                                                @RequestParam(defaultValue = "0") int page,
                                                                                @RequestParam(defaultValue = "5") int size) {
-        return ResponseEntity.ok(commentaireService.list_article(id,page,size));
+        return ResponseEntity.ok(commentaireService.listArticle(id,page,size));
 
     }
 }

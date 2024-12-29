@@ -1,6 +1,5 @@
 package ma.m3achaba.plantes.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,18 +10,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import ma.m3achaba.plantes.common.PageResponse;
 import ma.m3achaba.plantes.dto.MaladiesRequest;
 import ma.m3achaba.plantes.dto.MaladiesResponse;
 import ma.m3achaba.plantes.services.imp.MaladiesService;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;

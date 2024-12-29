@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Commentaire_plant extends Commentaire {
+public class PlantComment extends Commentaire {
     @ManyToOne
     @JoinColumn(name = "utilisateur_id")
     private User utilisateur;

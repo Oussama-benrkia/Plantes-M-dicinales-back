@@ -41,6 +41,7 @@ class PlantesServiceTest {
 
     private Plantes plante;
     private PlantesRequest planteRequest;
+    private PlantesResponse plantesResponse;
 
     @BeforeEach
     void setUp() {
@@ -56,22 +57,10 @@ class PlantesServiceTest {
         plante.setPrecautions("Handle with care");
         plante.setImages("path/to/image.jpg");
         plante.setMaladies(new ArrayList<>());  // Ensure that maladies list is initialized here
-    }
 
-
-
-
-
-    @Test
-    void testDeletePlante() {
-        when(plantesRepository.findById(1L)).thenReturn(Optional.of(plante));
-        doNothing().when(plantesRepository).delete(any(Plantes.class));
-        when(plantesMapper.toResponse(any(Plantes.class))).thenReturn(new PlantesResponse(1L, "Rose", "A beautiful flower", "Morocco", "Decoration", "Handle with care", "path/to/image.jpg", "2024-12-24", Arrays.asList("Malady 1")));
-
-        Optional<PlantesResponse> response = plantesService.delete(1L);
-
-        assertTrue(response.isPresent());
-        assertEquals("Rose", response.get().getName());
+        // Initialize a PlantesRequest and response objects for testing
+        planteRequest = new PlantesRequest("Rose", "A beautiful flower", "Decoration", "Morocco", "Handle with care", List.of(Math.toIntExact(1L)),null);
+        plantesResponse = new PlantesResponse(1L, "Rose", "A beautiful flower", "Morocco", "Decoration", "Handle with care", "path/to/image.jpg", "2024-12-24", Arrays.asList("Malady 1"));
     }
 
     @Test
@@ -112,5 +101,78 @@ class PlantesServiceTest {
         assertNotNull(response);
     }
 
-    
+    @Test
+    void testFindById() {
+        // Given
+        when(plantesRepository.findById(1L)).thenReturn(Optional.of(plante));
+        when(plantesMapper.toResponse(plante)).thenReturn(plantesResponse);
+
+        // When
+        Optional<PlantesResponse> result = plantesService.findById(1L);
+
+        // Then
+        assertTrue(result.isPresent());
+        assertEquals("Rose", result.get().getName());
+    }
+
+    @Test
+    void testSave() {
+        // Given
+        when(plantesRepository.existsByName("Rose")).thenReturn(false);
+        when(maladiesRepository.findAllById(List.of(1L))).thenReturn(List.of(new Maladies()));
+        when(plantesMapper.toEntity(planteRequest)).thenReturn(plante);
+        when(plantesRepository.save(plante)).thenReturn(plante);
+        when(plantesMapper.toResponse(plante)).thenReturn(plantesResponse);
+
+        // When
+        Optional<PlantesResponse> result = plantesService.save(planteRequest);
+
+        // Then
+        assertTrue(result.isPresent());
+        assertEquals("Rose", result.get().getName());
+    }
+
+    @Test
+    void testSaveEntityAlreadyExists() {
+        // Given
+        when(plantesRepository.existsByName("Rose")).thenReturn(true);
+
+        // When / Then
+        assertThrows(EntityNotFoundException.class, () -> plantesService.save(planteRequest));
+    }
+
+
+
+
+    @Test
+    void testFindAllWithSearch2() {
+        // Given
+        List<Plantes> plantesList = List.of(plante);
+        Page<Plantes> page = Mockito.mock(Page.class);
+        when(plantesRepository.findAllByNameContainingIgnoreCase("Rose", PageRequest.of(0, 10))).thenReturn(page);
+        when(page.getContent()).thenReturn(plantesList);
+        when(plantesMapper.toResponse(plante)).thenReturn(plantesResponse);
+
+        // When
+        PageResponse<PlantesResponse> result = plantesService.findAllWithsearch(0, 10, "Rose");
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.getContent().size());
+    }
+
+    @Test
+    void testFindAllByMaladieName() {
+        // Given
+        Maladies maladie = new Maladies();
+        maladie.setName("Disease");
+        when(maladiesRepository.findByName("Disease")).thenReturn(Optional.of(maladie));
+        when(plantesRepository.findAllByMaladies(maladie, PageRequest.of(0, 10))).thenReturn(Mockito.mock(Page.class));
+
+        // When
+        PageResponse<PlantesResponse> result = plantesService.findallbynameMaladie(0, 10, "Disease");
+
+        // Then
+        assertNotNull(result);
+    }
 }

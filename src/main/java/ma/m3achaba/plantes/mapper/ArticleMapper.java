@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import ma.m3achaba.plantes.dto.ArticleRequest;
 import ma.m3achaba.plantes.dto.ArticleResponse;
 import ma.m3achaba.plantes.model.Article;
-import ma.m3achaba.plantes.model.Maladies;
 import ma.m3achaba.plantes.model.Plantes;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;

@@ -28,7 +28,6 @@ public class UserController {
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
-
     @GetMapping
     public ResponseEntity<PageResponse<UserResponse>> findAll(
             @RequestParam(defaultValue = "0") int page,
