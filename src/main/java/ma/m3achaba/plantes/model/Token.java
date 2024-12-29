@@ -12,7 +12,8 @@ import ma.m3achaba.plantes.common.BaseEntity;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Token extends BaseEntity {
+public class
+Token extends BaseEntity {
     @Column(unique = true)
     private String token;
     private boolean revoked;

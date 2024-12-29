@@ -60,7 +60,6 @@ public class PlantesBackendApplicationTests {
             mockedFiles.verify(() -> Files.createDirectories(path), times(1));
         }
     }
-
     @Test
     void testDirectoryAlreadyExists() throws Exception {
         // Mocking static Files within the test method
