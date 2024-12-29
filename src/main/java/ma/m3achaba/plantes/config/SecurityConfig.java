@@ -38,7 +38,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/image/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/plantes/**").permitAll()
-
+                        .requestMatchers(HttpMethod.GET, "/api/articles/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

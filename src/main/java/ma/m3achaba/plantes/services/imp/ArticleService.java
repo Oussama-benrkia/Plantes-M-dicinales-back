@@ -118,6 +118,7 @@ public class ArticleService implements ServiceMetier<ArticleResponse, ArticleReq
     public Optional<ArticleResponse> delete(Long id) {
         Article article = findArticleById(id);
         article.getPlantes().clear();
+        article.getCommentaires().clear();
         if (!article.getImage().isEmpty()) {
             imgService.deleteImage(article.getImage());
         }

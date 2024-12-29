@@ -6,12 +6,8 @@ import ma.m3achaba.plantes.common.PageResponse;
 import ma.m3achaba.plantes.dto.CommentaireRequest;
 import ma.m3achaba.plantes.dto.CommentaireResponse;
 import ma.m3achaba.plantes.mapper.CommentaireMapper;
-import ma.m3achaba.plantes.model.Commentaire_plant;
-import ma.m3achaba.plantes.model.Plantes;
-import ma.m3achaba.plantes.model.User;
-import ma.m3achaba.plantes.repo.CommentairepltRepository;
-import ma.m3achaba.plantes.repo.PlantesRepository;
-import ma.m3achaba.plantes.repo.UserRepo;
+import ma.m3achaba.plantes.model.*;
+import ma.m3achaba.plantes.repo.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +34,7 @@ public class CommentaireService {
     public Optional<CommentaireResponse> save_plante(CommentaireRequest commentaireRequest,Long idPlante) {
         Commentaire_plant cmt=commentaireMapper.toEntityPlante(commentaireRequest);
         Plantes pl=plantesRepository.findById(idPlante).orElseThrow(() -> new EntityNotFoundException("Plante " + 1 + " not found"));
-        cmt.setPlante(pl);
+        cmt.setPlantes(pl);
         User use=userService.getCurrentUser();
         cmt.setUtilisateur(use);
         return Optional.ofNullable(commentaireMapper.toResponse(commentairepltRepository.save(cmt)));
@@ -46,7 +42,7 @@ public class CommentaireService {
 
     public PageResponse<CommentaireResponse> list_plnate(Long idPlante,int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Plantes pl = plantesRepository.findById(idPlante).orElseThrow(() -> new EntityNotFoundException("Plante " + 1 + " not found"));
+        Plantes pl = plantesRepository.findById(idPlante).orElseThrow(() -> new EntityNotFoundException("Plante " + idPlante+ " not found"));
         Page<Commentaire_plant> commentaire = commentairepltRepository.findAllByPlantes(pl, pageable);
         return PageResponse.<CommentaireResponse>builder()
                 .totalPages(commentaire.getTotalPages())
@@ -62,8 +58,8 @@ public class CommentaireService {
             Commentaire_article cmt = commentaireMapper.toEntityArticle(commentaireRequest);
             Article article = articleRepository.findById(idArticle).orElseThrow(() -> new EntityNotFoundException("Article " + idArticle + " not found"));
             cmt.setArticle(article);
-            User user = userRepo.findById(1L).orElseThrow(() -> new EntityNotFoundException("User not found"));
-            cmt.setUtilisateur(user);
+            User use=userService.getCurrentUser();
+            cmt.setUtilisateur(use);
             return Optional.ofNullable(commentaireMapper.toResponse(commentaireartRepository.save(cmt)));
         }
 

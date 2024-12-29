@@ -27,7 +27,7 @@ public class CompteController {
 
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> updateProfile(
-            @Validated(OnUpdate.class) @RequestBody UserRequest request) {
+            @Validated(OnUpdate.class) @ModelAttribute UserRequest request) {
         return userService.updateProfile(request)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
