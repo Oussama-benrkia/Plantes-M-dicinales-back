@@ -9,12 +9,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Commentaire_article extends Commentaire{
+public class Commentaire_article extends Commentaire {
     @ManyToOne
     @JoinColumn(name = "utilisateur_id")
     private User utilisateur;

@@ -9,7 +9,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @SuperBuilder

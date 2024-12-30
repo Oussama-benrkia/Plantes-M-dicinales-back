@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,7 @@ public class CommentaireService {
         cmt.setPlantes(pl);
         User use=userService.getCurrentUser();
         cmt.setUtilisateur(use);
+        cmt.setCreatedDate(LocalDateTime.now());
         return Optional.ofNullable(commentaireMapper.toResponse(commentairepltRepository.save(cmt)));
     }
 
@@ -54,16 +56,18 @@ public class CommentaireService {
                 .content(commentaire.getContent().stream().map(commentaireMapper::toResponse).collect(Collectors.toList()))
                 .build();
     }
-        public Optional<CommentaireResponse> save_article(CommentaireRequest commentaireRequest, Long idArticle) {
-            Commentaire_article cmt = commentaireMapper.toEntityArticle(commentaireRequest);
-            Article article = articleRepository.findById(idArticle).orElseThrow(() -> new EntityNotFoundException("Article " + idArticle + " not found"));
-            cmt.setArticle(article);
-            User use=userService.getCurrentUser();
-            cmt.setUtilisateur(use);
-            return Optional.ofNullable(commentaireMapper.toResponse(commentaireartRepository.save(cmt)));
-        }
+    public Optional<CommentaireResponse> save_article(CommentaireRequest commentaireRequest, Long articleId) {
+        Commentaire_article cmt = commentaireMapper.toEntityArticle(commentaireRequest);
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new EntityNotFoundException("Article " + articleId + " not found"));
+        cmt.setArticle(article);
+        User user = userService.getCurrentUser();
+        cmt.setUtilisateur(user);
+        cmt.setCreatedDate(LocalDateTime.now());
+        return Optional.ofNullable(commentaireMapper.toResponse(commentaireartRepository.save(cmt)));
+    }
 
-        public PageResponse<CommentaireResponse> list_article(Long idArticle, int page, int size) {
+    public PageResponse<CommentaireResponse> list_article(Long idArticle, int page, int size) {
             Pageable pageable = PageRequest.of(page, size);
             Article article = articleRepository.findById(idArticle).orElseThrow(() -> new EntityNotFoundException("Article " + idArticle + " not found"));
             Page<Commentaire_article> commentaires = commentaireartRepository.findAllByArticle(article, pageable);
