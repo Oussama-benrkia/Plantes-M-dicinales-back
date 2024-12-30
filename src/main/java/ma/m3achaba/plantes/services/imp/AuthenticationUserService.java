@@ -11,6 +11,8 @@ import ma.m3achaba.plantes.model.Token;
 import ma.m3achaba.plantes.model.User;
 import ma.m3achaba.plantes.repo.TokenRepository;
 import ma.m3achaba.plantes.repo.UserRepo;
+import ma.m3achaba.plantes.util.images.ImagesFolder;
+import ma.m3achaba.plantes.util.images.ImgService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +32,7 @@ public class AuthenticationUserService {
     private final AuthenticationManager authenticationManager;
     private final RegisterMapper registerMapper;
     private final TokenRepository tokenRepository;
+    private final ImgService imgService;
 
     /**
      * Registers a new user.
@@ -41,6 +44,8 @@ public class AuthenticationUserService {
         User newUser = registerMapper.toEntity(registerRequest);
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         newUser.setRole(Role.USER);
+        String path=imgService.addImage(registerRequest.getFile(), ImagesFolder.USER);
+        newUser.setImage(path);
         userRepo.save(newUser);
         String jwt = jwtService.generateAccessToken(newUser);
         String refreshToken = jwtService.generateRefreshToken(new HashMap<>(), newUser);
