@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout ->
-                        logout.logoutUrl("/auth/logout")
+                        logout.logoutUrl("/api/auth/logout")
                                 .logoutSuccessHandler((request, response, authentication) -> {
                                     response.setStatus(HttpServletResponse.SC_OK);
                                     SecurityContextHolder.clearContext();
