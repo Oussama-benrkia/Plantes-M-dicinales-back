@@ -16,8 +16,11 @@ public class
 Token extends BaseEntity {
     @Column(unique = true)
     private String token;
-    private boolean revoked;
+    @Column
     private boolean expired;
+
+    @Column
+    private boolean revoked;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     public User user;
