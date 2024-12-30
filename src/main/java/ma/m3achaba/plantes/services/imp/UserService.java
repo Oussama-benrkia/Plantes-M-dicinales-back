@@ -194,12 +194,13 @@ public class UserService implements UserDetailsService, ServiceMetier<UserRespon
             user.setRole(Role.valueOf(request.role()));
             updated = true;
         }
-        if(!request.file().isEmpty()) {
+        if (request.file() != null && !request.file().isEmpty()) {
             imgService.deleteImage(user.getImage());
-            String path=imgService.addImage(request.file(), ImagesFolder.USER);
+            String path = imgService.addImage(request.file(), ImagesFolder.USER);
             user.setImage(path);
             updated = true;
         }
+    
 
         return updated;
     }
