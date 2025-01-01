@@ -100,8 +100,10 @@ public class ArticleService implements ServiceMetier<ArticleResponse, ArticleReq
             change = true;
         }
 
-        if (!t.images().isEmpty()) {
-            imgService.deleteImage(article.getImage());
+        if (t.images()!=null && !t.images().isEmpty()) {
+            if (article.getImage()!=null && !article.getImage().isEmpty()) {
+                imgService.deleteImage(article.getImage());
+            }
             String path = imgService.addImage(t.images(), ImagesFolder.ARTICLE);
             article.setImage(path);
             change = true;
@@ -119,7 +121,7 @@ public class ArticleService implements ServiceMetier<ArticleResponse, ArticleReq
         Article article = findArticleById(id);
         article.getPlantes().clear();
         article.getCommentaires().clear();
-        if (!article.getImage().isEmpty()) {
+        if (article.getImage()!=null && !article.getImage().isEmpty()) {
             imgService.deleteImage(article.getImage());
         }
         articleRepository.delete(article);

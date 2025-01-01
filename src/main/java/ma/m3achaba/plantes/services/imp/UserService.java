@@ -94,7 +94,7 @@ public class UserService implements UserDetailsService, ServiceMetier<UserRespon
     public Optional<UserResponse> delete(Long id) {
         User user = findUserById(id);
         userRepo.delete(user);
-        if(!user.getImage().isEmpty()) {
+        if (user.getImage() != null && !user.getImage().isEmpty()) {
             imgService.deleteImage(user.getImage());
         }
         return Optional.of(userMapper.toResponse(user));
@@ -195,12 +195,13 @@ public class UserService implements UserDetailsService, ServiceMetier<UserRespon
             updated = true;
         }
         if (request.file() != null && !request.file().isEmpty()) {
-            imgService.deleteImage(user.getImage());
+            if (user.getImage() != null && !user.getImage().isEmpty()) {
+                imgService.deleteImage(user.getImage());
+            }
             String path = imgService.addImage(request.file(), ImagesFolder.USER);
             user.setImage(path);
             updated = true;
         }
-    
 
         return updated;
     }

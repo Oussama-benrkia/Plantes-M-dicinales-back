@@ -126,8 +126,10 @@ public class PlantesService implements ServiceMetier<PlantesResponse, PlantesReq
             plantes.setPrecautions(t.precautions());
             change = true;
         }
-        if(!t.images().isEmpty()) {
-            imgService.deleteImage(plantes.getImages());
+        if(t.images()!=null && !t.images().isEmpty()) {
+            if(plantes.getImages()!=null && !plantes.getImages().isEmpty()) {
+                imgService.deleteImage(plantes.getImages());
+            }
             String path=imgService.addImage(t.images(), ImagesFolder.PLANTE);
             plantes.setImages(path);
             change = true;
@@ -145,7 +147,7 @@ public class PlantesService implements ServiceMetier<PlantesResponse, PlantesReq
         Plantes plantes = findPlanteById(id);
         plantes.getMaladies().clear();
         plantes.getCommentaires().clear();
-        if(!plantes.getImages().isEmpty()) {
+        if(plantes.getImages()!=null && !plantes.getImages().isEmpty()) {
             imgService.deleteImage(plantes.getImages());
         }
         plantesRepository.delete(plantes);

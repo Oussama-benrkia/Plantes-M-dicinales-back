@@ -15,6 +15,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "http://localhost:3000"  // Flutter web local
 
                 )
+
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
