@@ -68,6 +68,13 @@ public class JwtUtils {
                 && tokenRole != null
                 && tokenRole.equals(userRole));
     }
+    public boolean isRefershTokenValid(String token, UserDetails userDetails) {
+        final String tokenUsername = extractUsername(token);
+
+        return (tokenUsername.equals(userDetails.getUsername())
+                && !isTokenExpired(token)
+                );
+    }
 
     public String extractRole(String token) {
         return extractClaims(token, claims -> claims.get("role", String.class));

@@ -93,7 +93,7 @@ public class AuthenticationUserService {
         User user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found."));
 
-        if (!jwtService.isTokenValid(refreshTokenRequest.getToken(), user)) {
+        if (!jwtService.isRefershTokenValid(refreshTokenRequest.getToken(), user)) {
             throw new OperationNotPermittedException("Invalid token.");
         }
 
